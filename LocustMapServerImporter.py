@@ -117,7 +117,7 @@ class LocustMapServerImporter(object):
 
 def main():
 	if len(sys.argv) < 3:
-		print("usage: python MapserverImporter.py root_dir root_wms_url")
+		print("usage: python LocustMapServerImporter.py root_dir root_wms_url")
 		return 1
 	obj = LocustMapServerImporter(sys.argv[1], sys.argv[2])
 	obj.process()
