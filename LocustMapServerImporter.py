@@ -120,8 +120,7 @@ def main():
 		print("usage: python LocustMapServerImporter.py root_dir root_wms_url")
 		return 1
 	obj = LocustMapServerImporter(sys.argv[1], sys.argv[2])
-	obj.process()
-	
+	obj.process()	
 
 
 
