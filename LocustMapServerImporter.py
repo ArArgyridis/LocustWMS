@@ -26,7 +26,7 @@ class LocustMapServerImporter(object):
 		if self._url[-1] != "/":
 			self._url +="/"
 		
-	def _warpToEPSG(self, inFile, dstEPSG):
+	def _warpToEPSG(self, inFile, datePath, dstEPSG):
 		#warp if destination epsg is different than the file epsg
 		inDt = gdal.Open(inFile)
 		proj = osr.SpatialReference(wkt=inDt.GetProjection())
@@ -69,7 +69,7 @@ class LocustMapServerImporter(object):
 					inFile = os.path.join(datePath, fl)
 
 					try:
-						inDt = self. _warpToEPSG(inFile, dstEPSG)
+						inDt = self. _warpToEPSG(inFile, datePath, dstEPSG)
 							
 						#build pyramids
 						overview = inFile + ".ovr"
