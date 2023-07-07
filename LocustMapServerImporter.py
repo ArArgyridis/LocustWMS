@@ -33,7 +33,7 @@ class LocustMapServerImporter(object):
             self._url += "/"
 
     def _warpToEPSG(
-            self, inFile: str, dstEPSG: int, datePath: str, fl: str
+        self, inFile: str, dstEPSG: int, datePath: str, fl: str
     ) -> gdal.Dataset:
         """
         Warp if destination EPGS code is different from the file's EPSG
@@ -90,7 +90,7 @@ class LocustMapServerImporter(object):
             # for each date....
             for date in os.listdir(regionPath):
                 if date == "archive" or not os.path.isdir(
-                        os.path.join(regionPath, date)
+                    os.path.join(regionPath, date)
                 ):
                     continue
 
