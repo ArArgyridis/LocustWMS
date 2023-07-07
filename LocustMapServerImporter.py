@@ -103,14 +103,17 @@ class LocustMapServerImporter(object):
 
                     try:
                         inDt = self._warpToEPSG(
-                            inFile, dstEPSG, datePath, fl)
+                            inFile, dstEPSG
+                        )  # TODO add datepath and fl
 
                         # build pyramids
                         overview = inFile + ".ovr"
                         # validate overviews
                         if os.path.isfile(overview):
                             try:
-                                overviewDt = gdal.Open(overview)
+                                overviewDt = gdal.Open(
+                                    overview
+                                )  # TODO overviewDt seems to be unused
                                 errorHandler.capture()
                             except Exception as e:
                                 os.remove(overview)
@@ -167,7 +170,7 @@ def main():
     """
 
     assert (
-            len(sys.argv) < 3
+        len(sys.argv) < 3
     ), "usage: python LocustMapServerImporter.py root_dir root_wms_url"
 
     obj = LocustMapServerImporter(sys.argv[1], sys.argv[2])
@@ -175,9 +178,4 @@ def main():
 
 
 if __name__ == "__main__":
-    """
-    Main entry point
-    :argument
-    :argument https://locust.wms.cgls.dev/greeness
-    """
     main()
