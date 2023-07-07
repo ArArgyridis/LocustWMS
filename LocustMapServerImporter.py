@@ -33,7 +33,7 @@ class LocustMapServerImporter(object):
             self._url += "/"
 
     def _warpToEPSG(
-        self, inFile: str, dstEPSG: int, datePath: str, fl: str
+            self, inFile: str, dstEPSG: int, datePath: str, fl: str
     ) -> gdal.Dataset:
         """
         Warp if destination EPGS code is different from the file's EPSG
@@ -90,7 +90,7 @@ class LocustMapServerImporter(object):
             # for each date....
             for date in os.listdir(regionPath):
                 if date == "archive" or not os.path.isdir(
-                    os.path.join(regionPath, date)
+                        os.path.join(regionPath, date)
                 ):
                     continue
 
@@ -102,18 +102,18 @@ class LocustMapServerImporter(object):
                     inFile = os.path.join(datePath, fl)
 
                     try:
-                        inDt = self. _warpToEPSG(
-							inFile, dstEPSG, datePath, fl)
-							
-                        #build pyramids
+                        inDt = self._warpToEPSG(
+                            inFile, dstEPSG, datePath, fl)
+
+                        # build pyramids
                         overview = inFile + ".ovr"
-                        #validate overviews
+                        # validate overviews
                         if os.path.isfile(overview):
                             try:
                                 overviewDt = gdal.Open(overview)
                                 errorHandler.capture()
                             except Exception as e:
-								os.remove(overview)
+                                os.remove(overview)
 
                         if not os.path.isfile(overview):
                             print("Building pyramids for: ", inDt.GetDescription())
@@ -167,7 +167,7 @@ def main():
     """
 
     assert (
-        len(sys.argv) < 3
+            len(sys.argv) < 3
     ), "usage: python LocustMapServerImporter.py root_dir root_wms_url"
 
     obj = LocustMapServerImporter(sys.argv[1], sys.argv[2])
@@ -175,4 +175,9 @@ def main():
 
 
 if __name__ == "__main__":
+    """
+    Main entry point
+    :argument
+    :argument https://locust.wms.cgls.dev/greeness
+    """
     main()
