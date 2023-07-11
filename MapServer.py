@@ -150,9 +150,7 @@ class MapServer:
         os.makedirs(os.path.split(self._outMapFile)[0], exist_ok=True)
 
         imageryMap.save(self._outMapFile)
-        imageryMap = (
-            None  # TODO check if this is correct as doesn't seem to be meaning full
-        )
+        del imageryMap
 
     def getInfo(self):
         return (self._outMapFile, self.__wmsURL)

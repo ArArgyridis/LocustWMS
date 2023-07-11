@@ -104,7 +104,7 @@ class LocustMapServerImporter(object):
                     try:
                         inDt = self._warpToEPSG(
                             inFile, dstEPSG, datePath, fl
-                        )  # TODO add datepath and fl
+                        )
 
                         # build pyramids
                         overview = inFile + ".ovr"
@@ -113,7 +113,7 @@ class LocustMapServerImporter(object):
                             try:
                                 overviewDt = gdal.Open(
                                     overview
-                                )  # TODO overviewDt seems to be unused
+                                )
                                 errorHandler.capture()
                             except Exception as e:
                                 os.remove(overview)
