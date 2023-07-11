@@ -102,9 +102,11 @@ class LocustMapServerImporter(object):
                     inFile = os.path.join(datePath, fl)
 
                     try:
-                        inDt = self._warpToEPSG(
-                            inFile, dstEPSG, datePath, fl
-                        )
+                        # inDt = self._warpToEPSG(
+                        #     inFile, dstEPSG, datePath, fl
+                        # )
+
+                        inDt = gdal.Open(inFile)
 
                         # build pyramids
                         overview = inFile + ".ovr"
