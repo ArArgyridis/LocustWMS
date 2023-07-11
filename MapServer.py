@@ -15,102 +15,142 @@
 import mapscript, os
 from datetime import datetime
 from osgeo import osr
+
+
 class LayerInfo(object):
-	def __init__(self, processFile, layerName, epsgStr, width, height, extent, date=None, productKey=None, style=None):
-		self.processFile = processFile
-		self.layerName = layerName
-		self.epsgStr = epsgStr
-		self.width = width
-		self.height = height
-		self.extent = extent
-		self.style = style
-		self.date = date
-		self.productKey = productKey
+    def __init__(
+        self,
+        processFile: ...,
+        layerName: ...,
+        epsgStr: ...,
+        width: int,
+        height: int,
+        extent: ...,
+        date: ... = None,
+        productKey: ... = None,
+        style: ... = None,
+    ):
+        self.processFile = processFile
+        self.layerName = layerName
+        self.epsgStr = epsgStr
+        self.width = width
+        self.height = height
+        self.extent = extent
+        self.style = style
+        self.date = date
+        self.productKey = productKey
 
 
 class MapServer:
-	
-	def __init__(self, layerInfoList, wmsServerURL, outMapFile = "mapserver.map", wmsTitle = "A TEMP NAME",
-				 projection = None, extent = None):
-		self._layerInfoList = layerInfoList
-		self._wmsServerURL = wmsServerURL
-		self._outMapFile = outMapFile
-		self._wmsTitle = wmsTitle
-		self._projection = projection
+    def __init__(
+        self,
+        layerInfoList: ...,
+        wmsServerURL: ...,
+        outMapFile: ... = "mapserver.map",
+        wmsTitle: ... = "A TEMP NAME",
+        projection: ... = None,
+        extent: ... = None,
+    ):
+        """
+        TODO: add a description here
 
-		if self._projection is None:
-			self._projection = self._layerInfoList[0].epsgStr
+        :param layerInfoList:
+        :param wmsServerURL:
+        :param outMapFile:
+        :param wmsTitle:
+        :param projection:
+        :param extent:
+        """
 
+        self._layerInfoList = layerInfoList
+        self._wmsServerURL = wmsServerURL
+        self._outMapFile = outMapFile
+        self._wmsTitle = wmsTitle
+        self._projection = projection
 
-		ss = osr.SpatialReference()
-		ss.ImportFromEPSG(int(self._projection.split(":")[1]))
-		unit = ss.GetAttrValue("UNIT")
-		if unit == "degree":
-			self._units = mapscript.MS_DD
-		elif unit == "metre":
-			self._units = mapscript.MS_METERS
+        if not self._projection:
+            self._projection = self._layerInfoList[0].epsgStr
 
-		self._extent = extent
-		if self._extent is None:
-			self._extent = self._layerInfoList[0].extent
+        ss = osr.SpatialReference()
+        ss.ImportFromEPSG(int(self._projection.split(":")[1]))
+        unit = ss.GetAttrValue("UNIT")
 
+        if unit == "degree":
+            self._units = mapscript.MS_DD
+        elif unit == "metre":
+            self._units = mapscript.MS_METERS
+        else:
+            raise RuntimeError("Unknown unit: {0}".format(unit))
 
-	def process(self):
-		imageryMap = mapscript.mapObj()
-		imageryMap.web.metadata.set("wms_onlineresource", self._wmsServerURL)
-		imageryMap.web.metadata.set("wms_enable_request", "*")
+        self._extent = extent
+        if self._extent is None:
+            self._extent = self._layerInfoList[0].extent
 
-		imageryMap.name = self._wmsTitle
-		imageryMap.setSize(256, 256)
-		imageryMap.maxsize = 256
-		imageryMap.setProjection(self._projection)
-		imageryMap.setExtent(*self._extent)
+    def process(self):
+        """
+        "Description"
+        :return:
+        """
+        imageryMap = mapscript.mapObj()
+        imageryMap.web.metadata.set("wms_onlineresource", self._wmsServerURL)
+        imageryMap.web.metadata.set("wms_enable_request", "*")
 
-		outputFormat = mapscript.outputFormatObj("GD/JPEG")
-		imageryMap.setOutputFormat(outputFormat)
+        imageryMap.name = self._wmsTitle
+        imageryMap.setSize(256, 256)
+        imageryMap.maxsize = 256
+        imageryMap.setProjection(self._projection)
+        imageryMap.setExtent(*self._extent)
 
-		inPath = os.path.split(self._layerInfoList[0].processFile)[0]
+        outputFormat = mapscript.outputFormatObj("GD/JPEG")
+        imageryMap.setOutputFormat(outputFormat)
 
-		#building tile index
-		#tileIndex = os.path.join(inPath, "tileindex.shp")
-		#cmd = "gdaltindex {0} index_file {1}".format(tileIndex, processFile)
-		#os.system(cmd)
+        inPath = os.path.split(self._layerInfoList[0].processFile)[
+            0
+        ]  # TODO check if this is correct seems that is not beeing used
 
-		for layerInfo in self._layerInfoList:
-			inFileName = os.path.splitext(layerInfo.processFile.split("/")[-1])[0]
+        # building tile index
+        # tileIndex = os.path.join(inPath, "tileindex.shp")
+        # cmd = "gdaltindex {0} index_file {1}".format(tileIndex, processFile)
+        # os.system(cmd)
 
-			layer = mapscript.layerObj()
-			imageryMap.web.metadata.set("wms_title", self._wmsTitle)
-			imageryMap.web.metadata.set("wms_srs", layerInfo.epsgStr)
+        for layerInfo in self._layerInfoList:
+            inFileName = os.path.splitext(layerInfo.processFile.split("/")[-1])[
+                0
+            ]  # TODO check if this is correct seems that is not beeing used
 
-			layer.data =layerInfo.processFile
-			layer.name = layerInfo.layerName
-			layer.type = mapscript.MS_LAYER_RASTER
-			if isinstance(layerInfo.style, list):
-				for style in layerInfo.style:
-					layer.addProcessing("SCALE_{0}={1},{2}".format(style[0], style[1], style[2]) )
+            layer = mapscript.layerObj()
+            imageryMap.web.metadata.set("wms_title", self._wmsTitle)
+            imageryMap.web.metadata.set("wms_srs", layerInfo.epsgStr)
 
-			layer.setProjection(layerInfo.epsgStr)
-			layer.units = self._units
-			layer.metadata.set("wms_srs", layerInfo.epsgStr)
-			layer.metadata.set("STATUS", "ON")
-			if layerInfo.date != None:
-				layer.metadata.set("wms_timedefault", datetime.strptime(layerInfo.date, "%Y-%m-%d").isoformat())
-				layer.metadata.set("wms_timeextent", layerInfo.date+"/"+layerInfo.date)
-				layer.metadata.set("wms_timeitem", "TIME")
-			#layer.tileindex = tileIndex
-			imageryMap.insertLayer(layer)
-			
-		os.makedirs(os.path.split(self._outMapFile)[0],exist_ok=True)
+            layer.data = layerInfo.processFile
+            layer.name = layerInfo.layerName
+            layer.type = mapscript.MS_LAYER_RASTER
+            if isinstance(layerInfo.style, list):
+                for style in layerInfo.style:
+                    layer.addProcessing(
+                        "SCALE_{0}={1},{2}".format(style[0], style[1], style[2])
+                    )
 
-		imageryMap.save(self._outMapFile)
-		imageryMap = None
-		
-	def getInfo(self):
-		return (self._outMapFile, self.__wmsURL)
-		
-		
-		
-	
+            layer.setProjection(layerInfo.epsgStr)
+            layer.units = self._units
+            layer.metadata.set("wms_srs", layerInfo.epsgStr)
+            layer.metadata.set("STATUS", "ON")
+            if layerInfo.date != None:
+                layer.metadata.set(
+                    "wms_timedefault",
+                    datetime.strptime(layerInfo.date, "%Y-%m-%d").isoformat(),
+                )
+                layer.metadata.set(
+                    "wms_timeextent", layerInfo.date + "/" + layerInfo.date
+                )
+                layer.metadata.set("wms_timeitem", "TIME")
+            # layer.tileindex = tileIndex
+            imageryMap.insertLayer(layer)
 
-	
+        os.makedirs(os.path.split(self._outMapFile)[0], exist_ok=True)
+
+        imageryMap.save(self._outMapFile)
+        del imageryMap
+
+    def getInfo(self):
+        return (self._outMapFile, self.__wmsURL)

@@ -12,25 +12,36 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+
 class GDALErrorHandler(object):
-	def __init__(self):
-		self.last_error = None
+    def __init__(self):
+        self.last_error = None
 
-	def handler(self, errorLevel, errorNo, errorMsg):
-		self.last_error = (errorLevel, errorNo, errorMsg)
+    def handler(self, errorLevel: int, errorNo: int, errorMsg: str):
+        self.last_error = (errorLevel, errorNo, errorMsg)
 
-	def capture(self):
-		if self.last_error is not None:
-			errorLevel, errorNo, errorMsg = self.last_error
-			self.last_error = None
-			raise RuntimeError("GDAL Error {0}: {1}".format(errorNo, errorMsg))
-			
+    def capture(self):
+        """
+        Captures the last error and raises a RuntimeError
+        :return:
+        """
+        if self.last_error is not None:
+            errorLevel, errorNo, errorMsg = self.last_error
+            self.last_error = None
+            raise RuntimeError("GDAL Error {0}: {1}".format(errorNo, errorMsg))
+
+
 def getGDALRasterExtents(inData):
-	gt = inData.GetGeoTransform()
-	bounds = [
-		gt[0],
-		gt[3] + gt[4] * inData.RasterXSize + gt[5] * inData.RasterYSize,
-		gt[0] + gt[1] * inData.RasterXSize + gt[2] * inData.RasterYSize,
-		gt[3]
-	]
-	return bounds 
+    """
+    Returns the extents of a GDAL raster
+    :param inData: gdal.Dataset
+    :return: gdal.Bounds
+    """
+    gt = inData.GetGeoTransform()
+    bounds = [
+        gt[0],
+        gt[3] + gt[4] * inData.RasterXSize + gt[5] * inData.RasterYSize,
+        gt[0] + gt[1] * inData.RasterXSize + gt[2] * inData.RasterYSize,
+        gt[3],
+    ]
+    return bounds
