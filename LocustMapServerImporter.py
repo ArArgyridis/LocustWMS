@@ -103,7 +103,7 @@ class LocustMapServerImporter(object):
 
                     try:
                         inDt = self._warpToEPSG(
-                            inFile, dstEPSG
+                            inFile, dstEPSG, datePath, fl
                         )  # TODO add datepath and fl
 
                         # build pyramids
@@ -169,9 +169,9 @@ def main():
     :return: None
     """
 
-    assert (
-        len(sys.argv) < 3
-    ), "usage: python LocustMapServerImporter.py root_dir root_wms_url"
+    # assert (
+    #     len(sys.argv) < 3
+    # ), "usage: python LocustMapServerImporter.py root_dir root_wms_url"
 
     obj = LocustMapServerImporter(sys.argv[1], sys.argv[2])
     obj.process()
