@@ -161,6 +161,7 @@ class LocustMapServerImporter(object):
                 self._url + region,
                 os.path.join(regionPath, "mapserver.map"),
                 "Locust WMS Service",
+                1024*6
             )
             obj.process()
 

@@ -48,6 +48,7 @@ class MapServer:
         wmsServerURL: ...,
         outMapFile: ... = "mapserver.map",
         wmsTitle: ... = "A TEMP NAME",
+        maxOutputImageSize: ...=256,
         projection: ... = None,
         extent: ... = None,
     ):
@@ -58,6 +59,7 @@ class MapServer:
         :param wmsServerURL:
         :param outMapFile:
         :param wmsTitle:
+        :param maxOutputImageSize
         :param projection:
         :param extent:
         """
@@ -66,6 +68,7 @@ class MapServer:
         self._wmsServerURL = wmsServerURL
         self._outMapFile = outMapFile
         self._wmsTitle = wmsTitle
+        self._maxOutputImageSize = maxOutputImageSize
         self._projection = projection
 
         if not self._projection:
@@ -97,13 +100,13 @@ class MapServer:
 
         imageryMap.name = self._wmsTitle
         imageryMap.setSize(256, 256)
-        imageryMap.maxsize = 256
+        imageryMap.maxsize = self._maxOutputImageSize
         imageryMap.setProjection(self._projection)
         imageryMap.setExtent(*self._extent)
 
-        outputFormat = mapscript.outputFormatObj("GD/JPEG")
+        outputFormat = mapscript.outputFormatObj("AGG/PNG8")
         imageryMap.setOutputFormat(outputFormat)
-
+        imageryMap.setImageType("png8")
         inPath = os.path.split(self._layerInfoList[0].processFile)[
             0
         ]  # TODO check if this is correct seems that is not beeing used
