@@ -67,10 +67,11 @@ class LocustMapServerImporter(object):
 
         return ret
 
-    def process(self, dstEPSG: int = 4326) -> None:
+    def process(self, dstEPSG: int = 4326, availableEPSGs=[3857,]) -> None:
         """
         Process the data and upload them to the mapserver
         :param dstEPSG: int, destination EPSG code
+        :param availableEPSGs: list of ints, additional EPSGs that need to be advertised by the WMS Service
         :return: None
         """
         # set error handler
@@ -127,12 +128,18 @@ class LocustMapServerImporter(object):
                                 resampling="AVERAGE", overviewlist=[2, 4, 8, 16, 32, 64]
                             )
 
+                        layerEPGS = ["EPSG:{0}".format(dstEPSG),]
+                        if availableEPSGs is not None and isinstance(availableEPSGs, list):
+                            for epsg in availableEPSGs:
+                                layerEPGS.append("EPSG:{0}".format(epsg))
+
+
                         # append to layerlist
                         layerList.append(
                             LayerInfo(
                                 os.path.relpath(inFile, regionPath),
                                 os.path.split(inFile)[-1].split(".")[0],
-                                "EPSG:{0}".format(dstEPSG),
+                                layerEPGS,
                                 inDt.RasterXSize,
                                 inDt.RasterYSize,
                                 getGDALRasterExtents(inDt),
@@ -161,7 +168,8 @@ class LocustMapServerImporter(object):
                 self._url + region,
                 os.path.join(regionPath, "mapserver.map"),
                 "Locust WMS Service",
-                1024*6
+                1024*6,
+                "EPSG:{0}".format(dstEPSG)
             )
             obj.process()
 

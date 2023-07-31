@@ -123,7 +123,7 @@ class MapServer:
 
             layer = mapscript.layerObj()
             imageryMap.web.metadata.set("wms_title", self._wmsTitle)
-            imageryMap.web.metadata.set("wms_srs", layerInfo.epsgStr)
+            imageryMap.web.metadata.set("wms_srs", " ".join(layerInfo.epsgStr))
 
             layer.data = layerInfo.processFile
             layer.name = layerInfo.layerName
@@ -134,9 +134,9 @@ class MapServer:
                         "SCALE_{0}={1},{2}".format(style[0], style[1], style[2])
                     )
 
-            layer.setProjection(layerInfo.epsgStr)
+            layer.setProjection(layerInfo.epsgStr[0])
             layer.units = self._units
-            layer.metadata.set("wms_srs", layerInfo.epsgStr)
+            layer.metadata.set("wms_srs", " ".join(layerInfo.epsgStr))
             layer.metadata.set("STATUS", "ON")
             if layerInfo.date != None:
                 layer.metadata.set(
